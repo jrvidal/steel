@@ -49,21 +49,22 @@ jobs:
       - uses: actions-rs/cargo@v1
         env:
           STEEL_HOME: ${{ env.STEEL_HOME }}
+          RUST_BACKTRACE: 1
         with:
           command: test
           args: --all
 
-      - name: install cargo-tarpaulin
-        run: cargo install cargo-tarpaulin
+      # - name: install cargo-tarpaulin
+      #   run: cargo install cargo-tarpaulin
 
-      - name: run code coverage
-        run: cargo tarpaulin --all -o "lcov"
+      # - name: run code coverage
+      #   run: cargo tarpaulin --all -o "lcov"
 
-      - name: Coveralls GitHub Action
-        uses: coverallsapp/github-action@v1.1.2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: ./lcov.info
+      # - name: Coveralls GitHub Action
+      #   uses: coverallsapp/github-action@v1.1.2
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     path-to-lcov: ./lcov.info
 
   rustfmt:
     name: Rustfmt
