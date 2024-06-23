@@ -977,8 +977,6 @@ pub struct List {
 impl PartialEq for List {
     fn eq(&self, other: &Self) -> bool {
         self.args == other.args
-            && self.improper == other.improper
-            && self.location == other.location
     }
 }
 
@@ -1012,18 +1010,6 @@ impl List {
 
     pub fn rest_mut(&mut self) -> Option<&mut [ExprKind]> {
         self.args.split_first_mut().map(|x| x.1)
-    }
-
-    pub fn args_proper(self, ty: TokenType<&str>) -> Result<Vec<ExprKind>, ParseError> {
-        if self.improper {
-            return Err(ParseError::SyntaxError(
-                format!("{} expression requires a proper list", ty),
-                self.location.unwrap_or_default(),
-                None,
-            ));
-        }
-
-        Ok(self.args)
     }
 
     pub fn first_ident_mut(&mut self) -> Option<&mut InternedString> {
@@ -1541,12 +1527,10 @@ where
                 ))
             };
 
-            let rest = l.improper;
-            let lambda = ExprKind::LambdaFunction(Box::new(LambdaFunction::new_maybe_rest(
+            let lambda = ExprKind::LambdaFunction(Box::new(LambdaFunction::new(
                 args,
                 body,
                 SyntaxObject::new(TokenType::Lambda, syn.span),
-                rest,
             )));
 
             Ok(ExprKind::Define(Box::new(Define::new(name, lambda, syn))))
@@ -2099,11 +2083,9 @@ pub fn parse_lambda(a: Atom, value: Vec<ExprKind>) -> Result<ExprKind, ParseErro
                 ))
             };
 
-            let rest = l.improper;
-
-            Ok(ExprKind::LambdaFunction(Box::new(
-                LambdaFunction::new_maybe_rest(args, body, syn, rest),
-            )))
+            Ok(ExprKind::LambdaFunction(Box::new(LambdaFunction::new(
+                args, body, syn,
+            ))))
         }
         Some(ExprKind::Atom(a)) => {
             let body_exprs: Vec<_> = value_iter.collect();

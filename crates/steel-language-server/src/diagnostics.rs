@@ -195,7 +195,17 @@ impl DiagnosticGenerator for StaticArityChecker {
                     // Don't include rest args for now
                     if let Some(d) = top_level_define {
                         if let ExprKind::LambdaFunction(l) = &d.body {
-                            if !l.rest {
+                            let mut rest = false;
+
+                            for arg in &l.args {
+                                if let Some(ident) = arg.atom_identifier() {
+                                    if ident.resolve() == "." {
+                                        rest = true;
+                                    }
+                                }
+                            }
+
+                            if !rest && !l.rest {
                                 arity_checker.known_functions.insert(id, l.args.len());
                             }
                         }

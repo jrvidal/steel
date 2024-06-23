@@ -2,6 +2,7 @@ pub mod analysis;
 pub mod begin;
 pub mod manager;
 pub mod mangle;
+pub mod reader;
 pub mod shadow;
 
 use std::ops::ControlFlow;

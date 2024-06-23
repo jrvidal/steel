@@ -1,5 +1,6 @@
 use crate::core::opcode::OpCode;
 use serde::{Deserialize, Serialize};
+use std::convert::TryInto;
 
 use super::labels::Expr;
 

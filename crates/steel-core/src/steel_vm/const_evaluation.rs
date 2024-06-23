@@ -1,3 +1,5 @@
+use crate::compiler::passes::reader::MultipleArityFunctions;
+use crate::compiler::passes::VisitorMutRefUnit;
 use crate::compiler::program::number_literal_to_steel;
 use crate::rvals::{Result, SteelVal};
 use crate::{
@@ -681,7 +683,13 @@ impl<'a> ConsumingVisitor for ConstantEvaluator<'a> {
             } // ExprKind::
         }
 
-        if let ExprKind::LambdaFunction(l) = func_expr {
+        if let ExprKind::LambdaFunction(mut l) = func_expr {
+            // It is possible at this point, that multi arity functions have not yet been expanded.
+            // We need to check if thats the case here
+            if !l.rest {
+                MultipleArityFunctions::new().visit_lambda_function(&mut l);
+            }
+
             if l.args.len() != args.len() && !l.rest {
                 println!("{}", l);
 

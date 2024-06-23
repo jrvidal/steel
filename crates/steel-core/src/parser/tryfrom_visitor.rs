@@ -125,29 +125,10 @@ impl ConsumingVisitor for TryFromExprKindForSteelVal {
     }
 
     fn visit_list(&mut self, l: super::ast::List) -> Self::Output {
-        if !l.improper {
-            let items: std::result::Result<List<_>, SteelErr> =
-                l.args.into_iter().map(|x| self.visit(x)).collect();
-
-            return Ok(items?.into());
-        }
-
-        debug_assert!(l.args.len() >= 2);
-
-        if l.args.len() < 2 {
-            stop!(Generic => "internal compiler error - unexpected malformed improper list");
-        };
-
-        let items: std::result::Result<Vec<_>, SteelErr> =
+        let items: std::result::Result<List<_>, SteelErr> =
             l.args.into_iter().map(|x| self.visit(x)).collect();
 
-        let pair = items?
-            .into_iter()
-            .rev()
-            .reduce(|cdr, car| crate::values::lists::Pair::cons(car, cdr).into())
-            .unwrap();
-
-        Ok(pair)
+        Ok(items?.into())
     }
 
     fn visit_syntax_rules(&mut self, s: Box<super::ast::SyntaxRules>) -> Self::Output {

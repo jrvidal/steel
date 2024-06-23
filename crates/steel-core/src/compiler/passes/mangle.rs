@@ -178,16 +178,12 @@ impl VisitorMutRefUnit for NameMangler {
 
 #[cfg(test)]
 mod name_mangling_tests {
-    use steel_parser::visitors::Eraser;
-
     use super::*;
 
     use crate::parser::parser::Parser;
 
     #[test]
     fn basic_mangling() {
-        let mut eraser = Eraser;
-
         let expr = r#"
            (define (foo x y z) (let ((a 10) (b 20)) (bar (+ x y z a b))))
            (define (bar applesauce) (+ applesauce 10))
@@ -197,9 +193,7 @@ mod name_mangling_tests {
 
         mangle_vars_with_prefix("--test--".to_string(), &mut parsed);
 
-        eraser.visit_many(&mut parsed);
-
-        let mut expected = Parser::parse(
+        let expected = Parser::parse(
             r#"
             (define (--test--foo x y z) (let ((a 10) (b 20)) (--test--bar (+ x y z a b))))
             (define (--test--bar applesauce) (+ applesauce 10))
@@ -207,15 +201,11 @@ mod name_mangling_tests {
         )
         .unwrap();
 
-        eraser.visit_many(&mut expected);
-
         assert_eq!(parsed, expected);
     }
 
     #[test]
     fn shadowed_global_still_mangled() {
-        let mut eraser = Eraser;
-
         let expr = r#"
         (define (foo x y z) (let ((foo 10) (b 20)) (foo (+ bar y z a b))))
         (define (bar applesauce) (+ applesauce 10))
@@ -225,17 +215,13 @@ mod name_mangling_tests {
 
         mangle_vars_with_prefix("--test--".to_string(), &mut parsed);
 
-        eraser.visit_many(&mut parsed);
-
-        let mut expected = Parser::parse(
+        let expected = Parser::parse(
             r#"
             (define (--test--foo x y z) (let ((--test--foo 10) (b 20)) (--test--foo (+ --test--bar y z a b))))
             (define (--test--bar applesauce) (+ applesauce 10))
      "#,
         )
         .unwrap();
-
-        eraser.visit_many(&mut expected);
 
         assert_eq!(parsed, expected);
     }
