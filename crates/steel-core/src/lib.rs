@@ -21,7 +21,7 @@ pub mod steel_vm;
 
 #[cfg(test)]
 mod tests;
-pub(crate) mod values;
+pub mod values;
 
 pub use self::{rerrs::SteelErr, rvals::SteelVal, stdlib::PRELUDE};
 pub use im_lists::list::List;
